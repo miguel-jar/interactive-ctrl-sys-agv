@@ -1,0 +1,11 @@
+  Valore para colocar na ESC
+    90 --> neutro (luz da esc fica continuamente verde)
+    25(máx) a 80(min) --> motor roda para frente
+
+    Se o carrinho estiver andando para frente
+      160(máx) a 110(min) --> freio
+
+    Se estiver parado
+      160(máx) a 110(min) --> motor roda para tras
+
+  Uma vez que o motor rodou para frente, é necessário primeiro colocar o motor em estado neutro (90) para depois dar ré
