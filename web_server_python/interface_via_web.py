@@ -1,5 +1,5 @@
 from flask import Flask, flash, request, redirect, render_template, jsonify
-from tratamento_mapa_python.mapping import get_map
+#from mapa_python.mapping import get_map
 import os
 
 UPLOAD_FOLDER = 'tratamento_mapa_python\mapas'
@@ -35,7 +35,7 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
             return redirect('/submit-trajectory')
 
-    return render_template('pagina0.html')
+    return render_template('teste.html')
 
 @app.route('/submit-trajectory', methods=['POST', 'GET'])
 def submit_trajectory():
