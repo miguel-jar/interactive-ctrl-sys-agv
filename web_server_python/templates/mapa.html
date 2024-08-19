@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Botões sobre SVG</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        #map-container {
+            position: relative;
+            display: inline-block; /* O contêiner se ajusta ao tamanho do conteúdo */
+        }
+        #map {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        .button-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: grid;
+            width: 100%;
+            height: 100%;
+        }
+        .grid-button {
+            background-color: transparent;
+            border: none;
+            transition: background-color 0.3s;
+            box-sizing: border-box; /* Inclui padding e borda no tamanho total do botão */
+            padding: 0;
+        }
+        .grid-button.selected {
+            background-color: rgba(255, 0, 0, 0.5);
+            border: none;
+            box-sizing: border-box; /* Inclui padding e borda no tamanho total do botão */
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map-container">
+    <img id="map" src="static/output.svg" alt="Mapa SVG">
+    <div class="button-grid">
+        <!-- Botões gerados por JavaScript -->
+    </div>
+</div>
+
+<button id="submit">Enviar Trajetória</button>
+<button id="clear">Limpar Trajetória</button>
+
+<script>
+    const submitButton = document.getElementById('submit');
+    const clearButton = document.getElementById('clear');
+    const grid = document.querySelector('.button-grid');
+    const mapImage = document.getElementById('map');
+    let selectedPoints = [];
+
+    var numColumns = 0, numRows = 0;
+
+    fetch('/get-configs')
+        .then(response => response.json())
+        .then(config => {            
+            const ResolucaoCm = 40;
+            numColumns = Math.floor(config.widthCm / ResolucaoCm);
+            numRows = Math.floor(config.heightCm / ResolucaoCm);
+        })
+        .catch(error => console.error('Erro ao ler as configurações:', error));
+
+    function adjustGridSize() {
+        const svgWidth = mapImage.clientWidth;
+        const svgHeight = mapImage.clientHeight;
+
+        const btnWidth = svgWidth / numColumns;
+        const btnHeight = svgHeight / numRows;
+            
+        grid.style.width = `${svgWidth}px`;
+        grid.style.height = `${svgHeight}px`;
+        grid.style.gridTemplateColumns = `repeat(${numColumns}, ${btnWidth}px)`;
+        grid.style.gridTemplateRows = `repeat(${numRows}, ${btnHeight}px)`;
+
+        // Remover botões existentes antes de recriar a matriz
+        grid.innerHTML = '';
+
+        // Criar botões na nova grade ajustada
+        for (let i = 0; i < numColumns * numRows; i++) {
+            const button = document.createElement('button');
+            button.classList.add('grid-button');
+            button.style.width = `${btnWidth}px`;
+            button.style.height = `${btnHeight}px`;
+
+            button.addEventListener('click', function() {
+                button.classList.toggle('selected');
+                const index = selectedPoints.indexOf(i);
+                if (index > -1) {
+                    selectedPoints.splice(index, 1);
+                } else {
+                    selectedPoints.push(i);
+                }
+            });
+            grid.appendChild(button);
+        }
+    }
+
+    // Ajustar tamanho da grade quando o SVG carregar
+    mapImage.onload = function() {
+        adjustGridSize();
+    };
+
+    window.addEventListener('resize', adjustGridSize);
+
+    // Evento para enviar a trajetória
+    submitButton.addEventListener('click', function() {
+        fetch('/submit-trajectory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ trajectory: selectedPoints })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Trajetória enviada com sucesso!');
+        })
+        .catch(error => {
+            console.error('Erro ao enviar a trajetória:', error);
+        });
+    });
+
+    // Evento para limpar a trajetória
+    clearButton.addEventListener('click', function() {
+        selectedPoints = [];
+        const buttons = document.querySelectorAll('.grid-button');
+        buttons.forEach(button => button.classList.remove('selected'));
+    });
+</script>
+
+</body>
+</html>
