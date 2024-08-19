@@ -1,7 +1,7 @@
 import ezdxf
-
 from ezdxf.addons.drawing import Frontend, RenderContext
 from ezdxf.addons.drawing import layout, svg
+import json
 
 def __get_lines(doc : ezdxf.document.Drawing):    
     msp = doc.modelspace()
@@ -16,11 +16,11 @@ def __get_lines(doc : ezdxf.document.Drawing):
     return retas
 
 def __get_infos_solid(doc : ezdxf.document.Drawing):
-    folhas = {'A0':'mapa_python/sw_temp/a0.DXF', 
-              'A1':'mapa_python/sw_temp/a1.DXF',
-              'A2':'mapa_python/sw_temp/a2.DXF',
-              'A3':'mapa_python/sw_temp/a3.DXF', 
-              'A4':'mapa_python/sw_temp/a4.DXF'}
+    folhas = {'A0':'web_server_python/mapa_python/sw_temp/a0.DXF', 
+              'A1':'web_server_python/mapa_python/sw_temp/a1.DXF',
+              'A2':'web_server_python/mapa_python/sw_temp/a2.DXF',
+              'A3':'web_server_python/mapa_python/sw_temp/a3.DXF', 
+              'A4':'web_server_python/mapa_python/sw_temp/a4.DXF'}
 
     msp = doc.modelspace()
 
@@ -34,35 +34,52 @@ def __get_infos_solid(doc : ezdxf.document.Drawing):
 
     return caminhoModeloBase, unidadeDesenho, escalaReal
 
-def __norm_data(data, unit : str = 'CM', scale = 1):
+def __norm_data(data, unit : str, drawScale):
 
-    scale_conv_2_cm = {'MM': 0.1, 'CM':1, 'M': 100}
+    scale_conv_2_cm = {'MM': 0.1, 'CM':1, 'M': 100}  # padroniza em CM
 
     offset = min(data)  # normalizando em funçao do menor ponto de start
     offset_x, offset_y = offset[0][0], offset[1][0]
 
     rows = []
     for c in data:
-        x = [(l - offset_x) * scale * scale_conv_2_cm[unit] for l in c[0]]
-        y = [(l - offset_y) * scale * scale_conv_2_cm[unit] for l in c[1]]
+        x = [(l - offset_x) * drawScale * scale_conv_2_cm[unit] for l in c[0]]
+        y = [(l - offset_y) * drawScale * scale_conv_2_cm[unit] for l in c[1]]
         rows.append([x, y])
 
     return rows
 
-def export(points):
+def __export(points):
     doc = ezdxf.new()
     msp = doc.modelspace()
+
+    minX, maxX = float('inf'), -float('inf')
+    minY, maxY = float('inf'), -float('inf')
+
     for c in points:
+        minX = min(minX, min(c[0]))
+        maxX = max(maxX, max(c[0]))
+        minY = min(minY, min(c[1]))
+        maxY = max(maxY, max(c[1]))
         msp.add_line([c[0][0], c[1][0]], [c[0][1], c[1][1]])  # start point e end point
+
+    maxSzPx = 1000
+    width, height = maxX - minX, maxY - minX
+    normScaleW , normScaleH = width / max(width, height), height / max(width, height)
+    normWidth, normHeight = maxSzPx * normScaleW, maxSzPx * normScaleH
+    args = {'maxSzPx':maxSzPx, 'widthCm':width, 'heightCm':height,
+            'normWidthPx':int(normWidth), 'normHeightPx':int(normHeight)}
+    
+    with open("web_server_python/static/config.json", "w") as configs:
+        json.dump(args, configs, indent=4)
 
     context = RenderContext(doc)
     backend = svg.SVGBackend()
     frontend = Frontend(context, backend)
     frontend.draw_layout(msp)
-    page = layout.Page(0, 0, layout.Units.cm)
-
+    page = layout.Page(width=normWidth , height=normHeight, units=layout.Units.px)
     svg_string = backend.get_string(page)
-    with open("web_server_python\static\output.svg", "wt", encoding="utf8") as fp:
+    with open("web_server_python/static/output.svg", "wt", encoding="utf8") as fp:
         fp.write(svg_string)
 
 def get_map(filename : str, solidwork : bool = True):
@@ -77,16 +94,16 @@ def get_map(filename : str, solidwork : bool = True):
 
         mapa = retasArquivo - retasTemplate  # remove margens e legendas
         pontos = __norm_data(mapa, unidade, escala)
-        export(pontos)
+        __export(pontos)
         return pontos
 
-    export(retasArquivo)
+    __export(retasArquivo)
     return retasArquivo
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    coordenadas = get_map('mapa_python/mapas/mapa.DXF')
+    coordenadas = get_map('web_server_python/mapa_python/mapas/mapa.DXF')
     for linhas in coordenadas:
         x, y = linhas[0], linhas[1]
         plt.plot(x , y)
