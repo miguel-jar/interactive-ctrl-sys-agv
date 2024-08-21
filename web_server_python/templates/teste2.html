@@ -65,30 +65,35 @@
     const mapImage = document.getElementById('map');
     let selectedPoints = [];
 
-    function adjustGridSize() {
-        fetch('/get-configs')
+    var numColumns = 0, numRows = 0;
+
+    fetch('/get-configs')
         .then(response => response.json())
-        .then(config => {
-            const svgWidth = mapImage.clientWidth;
-            const svgHeight = mapImage.clientHeight;
-
+        .then(config => {            
             const ResolucaoCm = 40;
-            const numColumns = Math.floor(config.widthCm / ResolucaoCm);
-            const numRows = Math.floor(config.heightCm / ResolucaoCm);
+            numColumns = Math.floor(config.widthCm / ResolucaoCm) + 1;  // +1 pra ter um bloco 0,0
+            numRows = Math.floor(config.heightCm / ResolucaoCm) + 1;
+        })
+        .catch(error => console.error('Erro ao ler as configurações:', error));
 
-            const btnWidth = svgWidth / numColumns;
-            const btnHeight = svgHeight / numRows;
+    function adjustGridSize() {
+        const svgWidth = mapImage.clientWidth;
+        const svgHeight = mapImage.clientHeight;
+
+        const btnWidth = svgWidth / numColumns;
+        const btnHeight = svgHeight / numRows;
             
-            grid.style.width = `${svgWidth}px`;
-            grid.style.height = `${svgHeight}px`;
-            grid.style.gridTemplateColumns = `repeat(${numColumns}, ${btnWidth}px)`;
-            grid.style.gridTemplateRows = `repeat(${numRows}, ${btnHeight}px)`;
+        grid.style.width = `${svgWidth}px`;
+        grid.style.height = `${svgHeight}px`;
+        grid.style.gridTemplateColumns = `repeat(${numColumns}, ${btnWidth}px)`;
+        grid.style.gridTemplateRows = `repeat(${numRows}, ${btnHeight}px)`;
 
-            // Remover botões existentes antes de recriar a matriz
-            grid.innerHTML = '';
+        // Remover botões existentes antes de recriar a matriz
+        grid.innerHTML = '';
 
-            // Criar botões na nova grade ajustada
-            for (let i = 0; i < numColumns * numRows; i++) {
+        // Criar botões na nova grade ajustada
+        for (let i = 0; i < numColumns; i++) {
+            for (let j = 0; j < numColumns; j++){
                 const button = document.createElement('button');
                 button.classList.add('grid-button');
                 button.style.width = `${btnWidth}px`;
@@ -96,20 +101,20 @@
 
                 button.addEventListener('click', function() {
                     button.classList.toggle('selected');
-                    const index = selectedPoints.indexOf(i);
+                    const index = selectedPoints.indexOf([i, j]);
                     if (index > -1) {
                         selectedPoints.splice(index, 1);
                     } else {
-                        selectedPoints.push(i);
+                        selectedPoints.push([i, j]);
                     }
                 });
                 grid.appendChild(button);
-            }})
-        .catch(error => console.error('Erro ao ler as configurações:', error));
+            }
+        }
     }
 
     // Ajustar tamanho da grade quando o SVG carregar
-        mapImage.onload = function() {
+    mapImage.onload = function() {
         adjustGridSize();
     };
 

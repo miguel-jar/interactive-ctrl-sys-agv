@@ -1,8 +1,12 @@
 from flask import Flask, flash, request, redirect, render_template, jsonify
-from mapa_python.mapping import get_map
+from proc_mapa.proc_mapa import get_mapa
 import os, json
 
-UPLOAD_FOLDER = 'web_server_python/mapa_python/mapas'
+paginaUpload = 'upload_mapa.html'
+paginaMapa = 'mapa.html'
+pathJson = 'web_server_python/static/config.json'
+
+UPLOAD_FOLDER = 'web_server_python/proc_mapa/mapas'
 ALLOWED_EXTENSIONS = {'dxf'}
 
 app = Flask(__name__)
@@ -29,10 +33,10 @@ def upload_file():
         if file and allowed_file(file.filename):
             caminhoDXF = os.path.join(app.config['UPLOAD_FOLDER'], 'mapa.DXF')
             file.save(caminhoDXF)
-            get_map(caminhoDXF)
+            get_mapa(caminhoDXF)
             return redirect('/submit-trajectory')
 
-    return render_template('upload_mapa.html')
+    return render_template(paginaUpload)
 
 @app.route('/submit-trajectory', methods=['POST', 'GET'])
 def submit_trajectory():
@@ -44,11 +48,11 @@ def submit_trajectory():
         print("Trajetória recebida:", trajectory)
         return jsonify({"status": "success", "trajectory": trajectory})
     
-    return render_template('mapa.html')
+    return render_template(paginaMapa)
 
 @app.route('/get-configs', methods=['GET'])
 def submit_configs():
-    with open('web_server_python/static/config.json', 'r') as configs:
+    with open(pathJson, 'r') as configs:
         args = json.load(configs)
     return args
 
