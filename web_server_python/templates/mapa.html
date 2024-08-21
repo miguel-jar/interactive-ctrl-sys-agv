@@ -65,14 +65,14 @@
     const mapImage = document.getElementById('map');
     let selectedPoints = [];
 
+    const ResolucaoCm = 20;
     var numColumns = 0, numRows = 0;
 
     fetch('/get-configs')
         .then(response => response.json())
         .then(config => {            
-            const ResolucaoCm = 40;
-            numColumns = Math.floor(config.widthCm / ResolucaoCm);
-            numRows = Math.floor(config.heightCm / ResolucaoCm);
+            numColumns = Math.floor(config.widthCm / ResolucaoCm) + 1;  // +1 pra ter um bloco 0,0
+            numRows = Math.floor(config.heightCm / ResolucaoCm) + 1;
         })
         .catch(error => console.error('Erro ao ler as configurações:', error));
 
@@ -92,19 +92,25 @@
         grid.innerHTML = '';
 
         // Criar botões na nova grade ajustada
-        for (let i = 0; i < numColumns * numRows; i++) {
+        for (let i = 0; i < numRows * numColumns; i++) {
             const button = document.createElement('button');
             button.classList.add('grid-button');
             button.style.width = `${btnWidth}px`;
             button.style.height = `${btnHeight}px`;
 
+            const row = Math.floor(i / numColumns); // Calcular linha
+            const col = i % numColumns; // Calcular coluna
+
             button.addEventListener('click', function() {
                 button.classList.toggle('selected');
-                const index = selectedPoints.indexOf(i);
-                if (index > -1) {
-                    selectedPoints.splice(index, 1);
+                const point = [row * ResolucaoCm, col * ResolucaoCm]; // Coordenadas relativas
+
+                // Verificar se o ponto já foi selecionado
+                const existingIndex = selectedPoints.findIndex(p => p[0] === point[0] && p[1] === point[1]);
+                if (existingIndex > -1) {
+                    selectedPoints.splice(existingIndex, 1);
                 } else {
-                    selectedPoints.push(i);
+                    selectedPoints.push(point);
                 }
             });
             grid.appendChild(button);
