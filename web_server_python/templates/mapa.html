@@ -58,9 +58,10 @@
 <button id="submit">Enviar Trajetória</button>
 <button id="clear">Limpar Trajetória</button>
 
+<button id="start">Iniciar</button>
+<button id="stop">Parar</button>
+
 <script>
-    const submitButton = document.getElementById('submit');
-    const clearButton = document.getElementById('clear');
     const grid = document.querySelector('.button-grid');
     const mapImage = document.getElementById('map');
     let selectedPoints = [];
@@ -123,6 +124,45 @@
     };
 
     window.addEventListener('resize', adjustGridSize);
+
+    const startButton = document.getElementById('start');
+    const stopButton = document.getElementById('stop');
+    const submitButton = document.getElementById('submit');
+    const clearButton = document.getElementById('clear');
+
+    startButton.addEventListener('click', function() {
+        fetch('/start-stop', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/javascript'
+            },
+            body: 'start'
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+        })
+        .catch(error => {
+            console.error('Não foi possível iniciar o robô.', error);
+        });
+    });
+
+    stopButton.addEventListener('click', function() {
+        fetch('/start-stop', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/javascript'
+            },
+            body: 'stop'
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+        })
+        .catch(error => {
+            console.error('Não foi possível parar o robô.', error);
+        });
+    });
 
     // Evento para enviar a trajetória
     submitButton.addEventListener('click', function() {
