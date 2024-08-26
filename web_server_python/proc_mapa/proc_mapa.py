@@ -3,9 +3,9 @@ from ezdxf.addons.drawing import Frontend, RenderContext
 from ezdxf.addons.drawing import layout, svg
 import json
 
-pathJSON = "web_server_python/static/config.json"
-pathSVG = "web_server_python/static/output.svg"
-pathTempsSolid = "web_server_python/proc_mapa/sw_temps/"
+pathJSON = "static/config.json"
+pathSVG = "static/output.svg"
+pathTempsSolid = "proc_mapa/sw_temps/"
 
 def __get_lines(doc : ezdxf.document.Drawing):    
     msp = doc.modelspace()
@@ -102,7 +102,7 @@ def get_mapa(filename : str, solidwork : bool = True):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    coordenadas = get_mapa('web_server_python/proc_mapa/mapas/mapa_corredor_a3.DXF')
+    coordenadas = get_mapa('proc_mapa/mapas/mapa_corredor_a3.DXF')
     for linhas in coordenadas:
         x, y = linhas[0], linhas[1]
         plt.plot(x , y)

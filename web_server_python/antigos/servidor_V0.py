@@ -4,9 +4,9 @@ import os, json
 
 paginaUpload = 'upload_mapa.html'
 paginaMapa = 'mapa.html'
-pathJson = 'web_server_python/static/config.json'
+pathJson = 'static/config.json'
 
-UPLOAD_FOLDER = 'web_server_python/proc_mapa/mapas'
+UPLOAD_FOLDER = 'proc_mapa/mapas'
 ALLOWED_EXTENSIONS = {'dxf'}
 
 app = Flask(__name__)
