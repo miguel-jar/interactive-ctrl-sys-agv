@@ -1,25 +1,13 @@
 from flask import Flask, flash, request, redirect, render_template, jsonify
 from proc_mapa.proc_mapa import get_mapa
 from teste_serial import envia_pontos
-import threading
-import os, json
-
-paginaUpload = 'upload_mapa.html'
-paginaMapa = 'mapa.html'
-pathJson = 'web_server_python/static/config.json'
-
-UPLOAD_FOLDER = 'web_server_python/proc_mapa/mapas'
-ALLOWED_EXTENSIONS = {'dxf'}
-
-trajectory = []
+import json, os, threading, yaml
 
 app = Flask(__name__)
-app.secret_key = b'miguel'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in configs['ALLOWED_EXTENSIONS']
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
@@ -40,7 +28,7 @@ def upload_file():
             get_mapa(caminhoDXF)
             return redirect('/submit-trajectory')
 
-    return render_template(paginaUpload)
+    return render_template(configs['PAGINA_UPLOAD'])
 
 @app.route('/submit-trajectory', methods=['POST', 'GET'])
 def submit_trajectory():
@@ -52,26 +40,41 @@ def submit_trajectory():
         print("Trajetória recebida:", trajectory)
         return jsonify({"status": "success", "trajectory": trajectory})
     
-    return render_template(paginaMapa)
+    return render_template(configs['PAGINA_MAPA'])
 
 @app.route('/get-configs', methods=['GET'])
 def submit_configs():
-    with open(pathJson, 'r') as configs:
-        args = json.load(configs)
+    with open(configs['PATH_JSON'], 'r') as config:
+        args = json.load(config)
     return args
 
 @app.route('/start-stop', methods=['POST'])
 def start_stop_robot():
     data = request.data.decode()
-    print(data)
+    #print(data)
 
     if data == 'start':
+        stop_event.clear()
+        args = (configs['PORTA_USB'], configs['BAUDRATE'], trajectory, 
+                configs['START_BYTE'], configs['STOP_BYTE'], configs['HEADER'], stop_event)
+        
+        thread = threading.Thread(target=envia_pontos, args=args)
+        thread.start()
         return 'Robo iniciado'
-        # thread = threading.Thread(target=envia_pontos, args=(trajectory, ))
-        # thread.start()
+
     elif data == 'stop':
+        stop_event.set()
         return 'Robo desligado'
 
 
 if __name__ == '__main__':
+    
+    with open('configs.yaml', 'r') as arquivo:
+        configs = yaml.load(arquivo, yaml.SafeLoader)
+        
+    trajectory = []
+    stop_event = threading.Event()
+    
+    app.secret_key = b'miguel'
+    app.config['UPLOAD_FOLDER'] = configs['UPLOAD_FOLDER']
     app.run(host='0.0.0.0', port=5000)
