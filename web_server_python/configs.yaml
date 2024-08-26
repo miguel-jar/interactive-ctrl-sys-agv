@@ -1,0 +1,12 @@
+UPLOAD_FOLDER: 'proc_mapa/mapas'
+ALLOWED_EXTENSIONS: {'dxf'}
+PAGINA_UPLOAD: 'upload_mapa.html'
+
+PAGINA_MAPA: 'mapa.html'
+PATH_JSON: 'static/config.json'
+
+PORTA_USB: 'COM5'
+BAUDRATE: 115200
+START_BYTE: 'p'
+STOP_BYTE: 's'
+HEADER: [16, 23]
