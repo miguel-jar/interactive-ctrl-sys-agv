@@ -6,7 +6,7 @@ Servo servoMotor, esc;
 void startTreco() {
   servoMotor.attach(SERVO);
   esc.attach(ESC);
-
+//
   servoMotor.write(anguloCentralServo);
   esc.write(velocidadeParada);
 }
