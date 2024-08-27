@@ -7,6 +7,6 @@ PATH_JSON: 'static/config.json'
 
 PORTA_USB: 'COM5'
 BAUDRATE: 115200
-START_BYTE: 'p'
-STOP_BYTE: 's'
+START_SEQ: [16, 35, 112]
+STOP_SEQ: [16, 35, 115]
 HEADER: [16, 23]

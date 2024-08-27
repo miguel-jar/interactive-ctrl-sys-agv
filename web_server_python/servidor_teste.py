@@ -1,6 +1,6 @@
 from flask import Flask, flash, request, redirect, render_template, jsonify
 from proc_mapa.proc_mapa import get_mapa
-from teste_serial import envia_pontos
+from envio_dados import envia_pontos
 import json, os, threading, yaml
 
 app = Flask(__name__)
@@ -34,6 +34,8 @@ def upload_file():
 def submit_trajectory():
     if request.method == 'POST':
         data = request.json
+
+        global trajectory 
         trajectory = data.get('trajectory')
 
         # Aqui você pode processar a trajetória, enviá-la ao robô, etc.
@@ -51,12 +53,12 @@ def submit_configs():
 @app.route('/start-stop', methods=['POST'])
 def start_stop_robot():
     data = request.data.decode()
-    #print(data)
+    global trajectory
 
     if data == 'start':
         stop_event.clear()
         args = (configs['PORTA_USB'], configs['BAUDRATE'], trajectory, 
-                configs['START_BYTE'], configs['STOP_BYTE'], configs['HEADER'], stop_event)
+                configs['START_SEQ'], configs['STOP_SEQ'], configs['HEADER'], stop_event)
         
         thread = threading.Thread(target=envia_pontos, args=args)
         thread.start()
@@ -71,8 +73,7 @@ if __name__ == '__main__':
     
     with open('configs.yaml', 'r') as arquivo:
         configs = yaml.load(arquivo, yaml.SafeLoader)
-        
-    trajectory = []
+
     stop_event = threading.Event()
     
     app.secret_key = b'miguel'
