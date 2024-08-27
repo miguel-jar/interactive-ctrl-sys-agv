@@ -13,7 +13,7 @@ bool controlePrescionado() {
 
 void interrupcaoEncoderINT1() {
   const float circunferenciaRoda = 11.5 * 3.14;  // em CM
-  const float resolucaoEncoder = 8.0;
+  const float resolucaoEncoder = 12.0;
   distanciaPercorrida += circunferenciaRoda / resolucaoEncoder;
 }
 
