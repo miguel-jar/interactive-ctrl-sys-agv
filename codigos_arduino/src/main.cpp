@@ -105,36 +105,30 @@ void calculeActualPosition(void)
 
 void receiveData(void)
 {
-  if (Serial.available() > 3)
+  if (Serial.available() > 0)
   {
-    if (Serial.read() != 0x10)
-    {
-      return;
-    }
-
-    while(Serial.available()<2);
-
     uint8_t rec = Serial.read();
-    if (rec != 0x17)
+    if (rec != 0x10)
     {
-      if (rec == 0x23)
+      if (rec == 115)
       {
-        rec = Serial.read();
-        if (rec == 115)
-        {
-          sistemaLigado = false;
-          digitalWrite(LED_BUILTIN, LOW);
-        }
-        else if (rec == 112)
-        {
-          sistemaLigado = true;
-          digitalWrite(LED_BUILTIN, HIGH);
-        }
+        sistemaLigado = false;
+        digitalWrite(LED_BUILTIN, LOW);
+      }
+      else if (rec == 112)
+      {
+        sistemaLigado = true;
+        digitalWrite(LED_BUILTIN, HIGH);
       }
       return;
     }
 
-    while(Serial.available() < 3);
+    while(Serial.available()<5);
+    
+    if (rec != 0x17)
+    {
+      return;
+    }
 
     int pX = ((byte)Serial.read() << 8) | Serial.read();
     int pY = ((byte)Serial.read() << 8) | Serial.read();
