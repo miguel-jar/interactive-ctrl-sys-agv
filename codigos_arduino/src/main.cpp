@@ -2,10 +2,10 @@
 #include "Configuracoes.h"
 #include "math.h"
 #include <Servo.h>
-//testing git
+// testing git
 bool sistemaLigado;
 float setpointAngulo;
-//branch
+// branch
 extern Servo servoMotor;
 
 #define QUANTITY_OF_POINTS 5
@@ -18,7 +18,7 @@ uint8_t receivedCoordinates;
 void setPID(void);
 void receiveData(void);
 double getSetPointAngle(int spX, int spY);
-void calculeActualPosition(void);
+void calculeAtualPosition(void);
 
 void setup()
 {
@@ -31,7 +31,6 @@ void setup()
   sistemaLigado = false; // só liga ao receber as 5 primeiras coordenadas
   setpointAngulo = 90.0;
 
-  tocaBuzzer();
   setVelocidade(velocidadeMovimentacao);
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -41,15 +40,19 @@ void loop()
 {
   receiveData();
 
-  if (controlePrescionado())
+  // if (controlePrescionado())
+  // {
+  //   finaliza();
+  //   sistemaLigado = false;
+  // }
+  if (sistemaLigado)
+  {
+    calculeAtualPosition();
+    setPID();
+  }
+  else
   {
     finaliza();
-    sistemaLigado = false;
-  }
-  else if (sistemaLigado)
-  {
-    calculeActualPosition();
-    setPID();
   }
 }
 
@@ -76,71 +79,69 @@ double getSetPointAngle(int spX, int spY)
   return atan((spY - actualY) / (spX - actualX));
 }
 
-void calculeActualPosition(void)
+void calculeAtualPosition(void)
 {
-  static float distOld;
-  float dist = getDistanciaPercorrida();
+  // static float distOld; 
+  // float dist = getDistanciaPercorrida();
   float angle = getAnguloAtual();
 
   angle = (angle / 180.0) * 3.14;
 
   int x_percorrido, y_percorrido;
 
-  if (dist - distOld > 0)
+  if (distanciaPercorrida1 > 0)
   {
-    x_percorrido = (dist - distOld) * sin(angle);
-    y_percorrido = (dist - distOld) * cos(angle);
+    float dist = distanciaPercorrida1;
+    distanciaPercorrida1 = 0;
+
+    x_percorrido = dist * sin(angle);
+    y_percorrido = dist * cos(angle);
 
     actualX += x_percorrido;
     actualY += y_percorrido;
 
-    Serial.write(byte(actualX >> 8));
-    Serial.write(byte(actualX));
+    Serial.write(byte(contador >> 8));
+    Serial.write(byte(contador));
     Serial.write(byte(actualY >> 8));
     Serial.write(byte(actualY));
   }
-
-  distOld = dist;
 }
 
 void receiveData(void)
 {
-  if (Serial.available() > 0)
+  if (Serial.available() > 4)
   {
     uint8_t rec = Serial.read();
-    if (rec != 0x10)
+
+    if (rec == 0x10)
     {
-      if (rec == 115)
-      {
-        sistemaLigado = false;
-        digitalWrite(LED_BUILTIN, LOW);
-      }
-      else if (rec == 112)
+      int pX = ((byte)Serial.read() << 8) | Serial.read();
+      int pY = ((byte)Serial.read() << 8) | Serial.read();
+
+      coordinateX = pX;
+      coordinateY = pY;
+      Serial.write(byte(coordinateX >> 8));
+      Serial.write(byte(coordinateX));
+      Serial.write(byte(coordinateY >> 8));
+      Serial.write(byte(coordinateY));
+    }
+    else if (rec == 0x20)
+    {
+      rec = Serial.read();
+      rec = Serial.read();
+      rec = Serial.read();
+      rec = Serial.read();
+
+      if (rec == 112)
       {
         sistemaLigado = true;
         digitalWrite(LED_BUILTIN, HIGH);
       }
-      return;
+      else if (rec == 115)
+      {
+        sistemaLigado = false;
+        digitalWrite(LED_BUILTIN, LOW);
+      }
     }
-
-    while(Serial.available()<5);
-    
-    if (rec != 0x17)
-    {
-      return;
-    }
-
-    int pX = ((byte)Serial.read() << 8) | Serial.read();
-    int pY = ((byte)Serial.read() << 8) | Serial.read();
-
-    coordinateX = pX;
-    coordinateY = pY;
-    
-    Serial.write(byte(coordinateX >> 8));
-    Serial.write(byte(coordinateX));
-    Serial.write(byte(coordinateY >> 8));
-    Serial.write(byte(coordinateY));
-
-    sistemaLigado = true; // habilita novamente após deslocar os pontos
   }
 }
