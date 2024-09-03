@@ -14,20 +14,18 @@
 /* ............................................ Parâmetros ............................................ */
 
 const float anguloCentralServo = 82.0;
-const int velocidadeMovimentacao = 75;
+const int velocidadeMovimentacao = 70;
 const int velocidadeParada = 90;
 
 /* .......................................... Parâmetros PID .......................................... */
 
-const float kp = 2.1;
+const float kp = 2.2;
 
 /* .............................................. Métodos ............................................. */
 
-void startGPIO();
-void interrupcaoEncoderINT1();
-void interrupcaoEncoderINT2();
-float getDistanciaPercorrida();
 bool controlePrescionado();
+float getDistanciaPercorrida();
+void startGPIO();
 
 void startMPU();
 float getAnguloAtual();
@@ -39,6 +37,5 @@ void finaliza();
 float pid(float setpoint);
 
 extern volatile float distanciaPercorrida1;
-extern uint16_t contador;
 
 #endif

@@ -2,146 +2,130 @@
 #include "Configuracoes.h"
 #include "math.h"
 #include <Servo.h>
-// testing git
+
 bool sistemaLigado;
-float setpointAngulo;
-// branch
-extern Servo servoMotor;
 
-#define QUANTITY_OF_POINTS 5
-#define ACCEPT_MARGIN 10
+int coordinateX = 360, coordinateY = 0;
+int xAtual = 0, yAtual = 0;
 
-int coordinateX = 0, coordinateY = 0;
-int actualX, actualY;
-uint8_t receivedCoordinates;
+void receiveData(void) {
+  if (Serial.available() > 4) {
+    uint8_t rec = Serial.read();
 
-void setPID(void);
-void receiveData(void);
-double getSetPointAngle(int spX, int spY);
-void calculeAtualPosition(void);
+    if (rec == 0x10) {
 
-void setup()
-{
-  Serial.begin(115200);
+      int xx = (Serial.read() << 8) | Serial.read();
+      int yy = (Serial.read() << 8) | Serial.read();
+
+      if (sistemaLigado) {
+        coordinateX = xx, coordinateY = yy;
+        Serial.write(byte(coordinateX >> 8));
+        Serial.write(byte(coordinateX));
+        Serial.write(byte(coordinateY >> 8));
+        Serial.write(byte(coordinateY));
+      } else {
+        xAtual = xx, yAtual = yy;
+        Serial.write(byte(xAtual >> 8));
+        Serial.write(byte(xAtual));
+        Serial.write(byte(yAtual >> 8));
+        Serial.write(byte(yAtual));
+      }
+
+    } else if (rec == 0x20) {
+      rec = Serial.read();
+      rec = Serial.read();
+      rec = Serial.read();
+      rec = Serial.read();
+
+      if (rec == 112) {
+        sistemaLigado = true;
+        digitalWrite(LED_BUILTIN, HIGH);
+      } else if (rec == 115) {
+        sistemaLigado = false;
+        digitalWrite(LED_BUILTIN, LOW);
+      }
+    }
+  }
+}
+
+void calculeAtualPosition(void) {
+  // static float distOld;
+  // float dist = getDistanciaPercorrida();
+  float angle = PI * getAnguloAtual() / 180.0;
+
+  if (distanciaPercorrida1 > 0) {
+    float dist = distanciaPercorrida1;
+    distanciaPercorrida1 = 0;
+
+    int x_percorrido = dist * cos(angle);
+    int y_percorrido = dist * sin(angle);
+
+    xAtual += x_percorrido;
+    yAtual += y_percorrido;
+
+    Serial.write(byte(xAtual >> 8));
+    Serial.write(byte(xAtual));
+    Serial.write(byte(yAtual >> 8));
+    Serial.write(byte(yAtual));
+  }
+}
+
+float getSetPointAngle(int spX, int spY) {
+  float dx = spX - xAtual, dy = spY - yAtual;
+
+  if (dx == 0) {
+    if (dy > 0)
+      return 90.0;
+    else if (dy < 0)
+      return -90.0;
+    else
+      return 0;
+  }
+
+  return atan(dy / dx) * 180.0 / PI;
+
+  /*if ((dx > 0) && (dy > 0))
+    return atan(dy / dx);
+
+  else if (((dx < 0) && (dy > 0)) || ((dx < 0) && (dy < 0)))
+    return atan(dy / dx) + PI;
+
+  else if ((dx > 0) && (dy < 0))
+    return atan(dy / dx) + 2 * PI;
+
+  else if (dx == 0) {
+    if (dy > 0)
+      return PI / 2.0;
+    else if (dy < 0)
+      return 2 * PI / 3.0;
+    else
+      return 0;
+  }*/
+}
+
+void setup() {
+  Serial.begin(9600);
 
   startMPU();
   startTreco();
   startGPIO();
 
-  sistemaLigado = false; // só liga ao receber as 5 primeiras coordenadas
-  setpointAngulo = 90.0;
-
-  setVelocidade(velocidadeMovimentacao);
-
+  sistemaLigado = false;  // só liga ao receber as 5 primeiras coordenadas
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
-void loop()
-{
+void loop() {
   receiveData();
 
-  // if (controlePrescionado())
-  // {
-  //   finaliza();
-  //   sistemaLigado = false;
-  // }
-  if (sistemaLigado)
-  {
+  //Serial.println(getAnguloAtual());
+
+  if (sistemaLigado) {
+    setVelocidade(velocidadeMovimentacao);
     calculeAtualPosition();
-    setPID();
-  }
-  else
-  {
+    float setpointAngulo = getSetPointAngle(coordinateX, coordinateY);
+    pid(setpointAngulo);
+
+  } else {
     finaliza();
-  }
-}
-
-void setPID(void)
-{
-  float setpoint = getSetPointAngle(coordinateX, coordinateY);
-
-  float erroRestante = setpoint - getAnguloAtual();
-
-  // Para as rodas do carrinho estarem alinhadas pra frente, o angulo do servo deve estar em 82, por isso a soma
-  float saidaControlador = anguloCentralServo + kp * erroRestante;
-
-  // Limites mecânicos que o servo da direção pode virar
-  if (saidaControlador > 122.0)
-    saidaControlador = 122.0;
-  else if (saidaControlador < 42.0)
-    saidaControlador = 42.0;
-
-  servoMotor.write(saidaControlador);
-}
-
-double getSetPointAngle(int spX, int spY)
-{
-  return atan((spY - actualY) / (spX - actualX));
-}
-
-void calculeAtualPosition(void)
-{
-  // static float distOld; 
-  // float dist = getDistanciaPercorrida();
-  float angle = getAnguloAtual();
-
-  angle = (angle / 180.0) * 3.14;
-
-  int x_percorrido, y_percorrido;
-
-  if (distanciaPercorrida1 > 0)
-  {
-    float dist = distanciaPercorrida1;
-    distanciaPercorrida1 = 0;
-
-    x_percorrido = dist * sin(angle);
-    y_percorrido = dist * cos(angle);
-
-    actualX += x_percorrido;
-    actualY += y_percorrido;
-
-    Serial.write(byte(contador >> 8));
-    Serial.write(byte(contador));
-    Serial.write(byte(actualY >> 8));
-    Serial.write(byte(actualY));
-  }
-}
-
-void receiveData(void)
-{
-  if (Serial.available() > 4)
-  {
-    uint8_t rec = Serial.read();
-
-    if (rec == 0x10)
-    {
-      int pX = ((byte)Serial.read() << 8) | Serial.read();
-      int pY = ((byte)Serial.read() << 8) | Serial.read();
-
-      coordinateX = pX;
-      coordinateY = pY;
-      Serial.write(byte(coordinateX >> 8));
-      Serial.write(byte(coordinateX));
-      Serial.write(byte(coordinateY >> 8));
-      Serial.write(byte(coordinateY));
-    }
-    else if (rec == 0x20)
-    {
-      rec = Serial.read();
-      rec = Serial.read();
-      rec = Serial.read();
-      rec = Serial.read();
-
-      if (rec == 112)
-      {
-        sistemaLigado = true;
-        digitalWrite(LED_BUILTIN, HIGH);
-      }
-      else if (rec == 115)
-      {
-        sistemaLigado = false;
-        digitalWrite(LED_BUILTIN, LOW);
-      }
-    }
   }
 }
