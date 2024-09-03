@@ -102,12 +102,12 @@
                     button.style.width = `${btnWidth}px`;
                     button.style.height = `${btnHeight}px`;
 
-                    const row = Math.floor(i / numColumns); // Calcular linha
+                    const row = numRows - Math.floor(i / numColumns) - 1; // Calcular linha
                     const col = i % numColumns; // Calcular coluna
 
                     button.addEventListener('click', function() {
                         button.classList.toggle('selected');
-                        const point = [row * ResolucaoCm, col * ResolucaoCm]; // Coordenadas relativas
+                        const point = [col * ResolucaoCm, row * ResolucaoCm]; // Coordenadas relativas
 
                         // Verificar se o ponto já foi selecionado
                         const existingIndex = selectedPoints.findIndex(p => p[0] === point[0] && p[1] === point[1]);
