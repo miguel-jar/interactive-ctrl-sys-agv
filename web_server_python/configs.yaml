@@ -6,7 +6,7 @@ PAGINA_MAPA: 'mapa.html'
 PATH_JSON: 'static/config.json'
 
 PORTA_USB: '/dev/ttyUSB0'
-BAUDRATE: 115200
+BAUDRATE: 9600
 START_SEQ: [32, 112, 112, 112, 112]
 STOP_SEQ: [32, 115, 115, 115, 115]
 HEADER: [16]
