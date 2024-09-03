@@ -63,7 +63,7 @@ def __export(points):
         msp.add_line([c[0][0], c[1][0]], [c[0][1], c[1][1]])  # start point e end point
 
     maxSzPx = 1000
-    width, height = maxX - minX, maxY - minX
+    width, height = maxX - minX, maxY - minY
     normScaleW , normScaleH = width / max(width, height), height / max(width, height)
     normWidth, normHeight = maxSzPx * normScaleW, maxSzPx * normScaleH
     args = {'maxSzPx':maxSzPx, 'widthCm':width, 'heightCm':height,
@@ -102,7 +102,7 @@ def get_mapa(filename : str, solidwork : bool = True):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
-    coordenadas = get_mapa('proc_mapa/mapas/mapa_corredor_a3.DXF')
+    coordenadas = get_mapa('proc_mapa/mapas/corredor_predio_2.DXF')
     for linhas in coordenadas:
         x, y = linhas[0], linhas[1]
         plt.plot(x , y)
