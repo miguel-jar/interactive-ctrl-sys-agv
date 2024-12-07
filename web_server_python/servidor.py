@@ -33,10 +33,8 @@ def upload_file():
 @app.route('/submit-trajectory', methods=['POST', 'GET'])
 def submit_trajectory():
     if request.method == 'POST':
-        data = request.json
-
         global trajectory 
-        trajectory = data.get('trajectory')
+        trajectory = request.json.get('trajectory')
 
         # Aqui você pode processar a trajetória, enviá-la ao robô, etc.
         print("Trajetória recebida:", trajectory)
@@ -50,15 +48,26 @@ def submit_configs():
         args = json.load(config)
     return args
 
+@app.route('/set-origin', methods=['POST'])
+def set_origin():
+    global origem
+    origem = request.json.get('origin')
+    print("Origem recebida:", origem)
+    return "Origem definida!"
+
 @app.route('/start-stop', methods=['POST'])
 def start_stop_robot():
     data = request.data.decode()
-    global trajectory
+    
+    global trajectory, origem
+    if not origem: return "Não foi possível iniciar o robô. Origem não definida"
+    if not trajectory: return "Não foi possível iniciar o robô. Trajetória não definida"
 
     if data == 'start':
         stop_event.clear()
-        args = (configs['PORTA_USB'], configs['BAUDRATE'], trajectory, 
-                configs['START_SEQ'], configs['STOP_SEQ'], configs['HEADER'], stop_event)
+        args = (configs['PORTA_USB'], configs['BAUDRATE'], origem, trajectory, 
+                configs['HEADER'], configs['START_SEQ'], configs['STOP_SEQ'], stop_event, 
+                configs['SAVE_PATH'], configs['SAVE_PATH_ALL'])
         
         thread = threading.Thread(target=envia_pontos, args=args)
         thread.start()
@@ -68,6 +77,9 @@ def start_stop_robot():
         stop_event.set()
         return 'Robo desligado'
 
+@app.route('/get-grafico', methods=['GET'])
+def get_grafico():
+    return render_template(configs['PAGINA_GRAFICO'])
 
 if __name__ == '__main__':
     
@@ -75,6 +87,7 @@ if __name__ == '__main__':
         configs = yaml.load(arquivo, yaml.SafeLoader)
 
     stop_event = threading.Event()
+    origem, trajectory = [], []
     
     app.secret_key = b'miguel'
     app.config['UPLOAD_FOLDER'] = configs['UPLOAD_FOLDER']

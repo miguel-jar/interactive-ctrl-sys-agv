@@ -1,12 +1,16 @@
-UPLOAD_FOLDER: 'proc_mapa/mapas'
+UPLOAD_FOLDER: web_server_python/proc_mapa/mapas
 ALLOWED_EXTENSIONS: {'dxf'}
-PAGINA_UPLOAD: 'upload_mapa.html'
+PAGINA_UPLOAD: upload_mapa.html
 
-PAGINA_MAPA: 'mapa.html'
-PATH_JSON: 'static/config.json'
+PAGINA_MAPA: mapa.html
+PATH_JSON:  web_server_python/static/config.json
 
-PORTA_USB: '/dev/ttyUSB0'
-BAUDRATE: 9600
+PAGINA_GRAFICO: grafico.html
+
+PORTA_USB: /dev/ttyUSB0
+BAUDRATE: 115200
+HEADER: [16]
 START_SEQ: [32, 112, 112, 112, 112]
 STOP_SEQ: [32, 115, 115, 115, 115]
-HEADER: [16]
+SAVE_PATH:  web_server_python/static/grafico.svg
+SAVE_PATH_ALL:  web_server_python/trajetos/26_09/*

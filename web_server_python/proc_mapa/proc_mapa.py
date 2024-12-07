@@ -4,7 +4,7 @@ from ezdxf.addons.drawing import layout, svg
 import json
 
 pathJSON = "static/config.json"
-pathSVG = "static/output.svg"
+pathSVG = "static/mapa.svg"
 pathTempsSolid = "proc_mapa/sw_temps/"
 
 def __get_lines(doc : ezdxf.document.Drawing):    
