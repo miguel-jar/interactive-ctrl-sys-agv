@@ -9,9 +9,18 @@ Link para o [artigo](https://biblioteca.inatel.br/cict/acervo%20publico/Sumarios
 
 Artigo traduzido e publicado no Congresso Internacional ICCMA 2025 (IEEE), realizado em Paris (França). -->
 
-# Autonomous Path-Following Robot 🤖🛰️
+## Interactive Control System for AGVs 🤖🛰️
 
-This project consists of an integrated system for an autonomous robot that follows trajectories generated from DXF/SVG maps. It combines **Arduino** for hardware control, **Flask** for the web interface, and **YOLOv8** for trajectory error analysis.
+This repository contains the integrated system and experimental source code for an autonomous robot (AGV) capable of following trajectories from DXF/SVG maps using **Arduino**, **Flask**, and **YOLOv8** computer vision analysis.
+
+## 🎓 Scientific Publication
+This project is part of the research presented at the 2025 13th International Conference on Control, Mechatronics and Automation (ICCMA) in Paris, France.
+
+* **Title**: Interactive Control System for Automated Guide Vehicles
+
+* **Authors**: HENRIQUES, J. P. C.; TEIXEIRA, D. N.; ROSA, M. B. M.; RIBEIRO, M. J. A.; RAIMUNDO NETO, E.; ARAGAO, M. V. C.; PAIVA, J. P. M. P.
+
+* **Journal**: [Read the full paper on IEEE Xplore](https://ieeexplore.ieee.org/document/11369532)
 
 ---
 
