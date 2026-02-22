@@ -47,10 +47,6 @@ The project is divided into three main modules:
 
 ## ⚙️ Installation
 
-### 1. Prerequisites
-
-**Python 3.11+**
-
 ### Cloning the Repository
 
 ```bash
@@ -75,18 +71,52 @@ conda env create -f environment.yml
 
 ## 🖥️ Run
 
-Inside project folder, type:
+To run application, inside project folder, type:
 
 ```bash
 cd python_web_server
 python server.py
 ```
 
+To run evaluations models, use a notebook interface (Jupyter Notebook, VS Code, Google Colab).
+
 ---
 
-## 📊 Performance Analysis
-The system includes a evaluation module. After each run, the vision system detects the robot's real-time position against the target path to calculate precision:
+## 🧠 Dataset & Model Training
 
-Mean Squared Error (MSE): Measures the average squared difference between estimated and actual positions.
+The training and testing datasets were generated from real-world footage of the project in operation. 
 
-Root Mean Squared Error (RMSE): Provides the error margin in centimeters (CM).
+* **Source:** High-definition videos recorded with a drone during experimental runs.
+* **Frame Extraction:** Images were sampled from these videos to create the training set for YOLOv8 (Standard and OBB models).
+* **Video Links:** You can find the original footage used for data extraction here:
+    * [Experiment Run #1](https://youtu.be/cj4z1ridE08)
+    * [Experiment Run #2](https://youtu.be/_qWvqBL0OQY)
+    * [Experiment Run #3](https://youtu.be/jRkqLKHnnJs)
+
+---
+
+## 📊 Performance Analysis & Vision Pipeline
+
+### Data Acquisition
+
+The analysis starts with high-definition footage recorded during the robot's operation. These videos (available on YouTube) serve as the primary data source. Frames are extracted and processed through the YOLOv8 model to pinpoint the robot's location relative to the trajectory in every frame.
+
+### Accuracy Metrics
+
+By comparing the detected coordinates against the ideal path generated from the maps, the system calculates the following statistical metrics to quantify precision:
+
+* Mean Squared Error (MSE): Quantifies the average squared variance between the robot's center and the target path. This metric penalizes larger deviations, making it ideal for identifying critical path failures.
+
+* Root Mean Squared Error (RMSE): Represents the standard deviation of the residuals. It provides the final error margin in a human-readable format: Centimeters (CM).
+
+### Vision-to-Physical Calibration
+
+To ensure real-world accuracy, the system uses a calibration constant based on the known width of the path ($1000$ cm), allowing the software to convert pixel-based detections into precise metric measurements.
+
+### YOLOv8 Detection Example
+To calculate the error metrics, the vision system performs real-time inference on the video frames. Below is an example of the model identifying the robot's orientation and its alignment with the path:
+
+<div align="center">
+  <img src="vision_module/results/path_1/v4/5.png" width="600px" alt="YOLOv8 Detection Output">
+  <p><i>Figure 1: YOLOv8 inference showing Class 0 (Robot) and Class 1 (Path).</i></p>
+</div>
