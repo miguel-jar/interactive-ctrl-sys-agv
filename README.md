@@ -117,6 +117,6 @@ To ensure real-world accuracy, the system uses a calibration constant based on t
 To calculate the error metrics, the vision system performs real-time inference on the video frames. Below is an example of the model identifying the robot's orientation and its alignment with the path:
 
 <div align="center">
-  <img src="vision_module/results/path_1/v4/5.png" width="600px" alt="YOLOv8 Detection Output">
+  <img src="vision_module/results/path_2/v3/10.png" width="600px" alt="YOLOv8 Detection Output">
   <p><i>Figure 1: YOLOv8 inference showing Class 0 (Robot) and Class 1 (Path).</i></p>
 </div>
