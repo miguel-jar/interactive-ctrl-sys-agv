@@ -110,6 +110,9 @@ The training and testing datasets were generated from real-world footage of the 
 
 The analysis starts with high-definition footage recorded during the robot's operation. These videos (available on YouTube) serve as the primary data source. Frames are extracted and processed through the YOLOv8 model to pinpoint the robot's location relative to the trajectory in every frame.
 
+### YOLOv8 Detection Example
+To calculate the error metrics, the vision system performs real-time inference on the video frames. Below is an example of the model identifying the robot's orientation and its alignment with the path:
+
 ### Accuracy Metrics
 
 By comparing the detected coordinates against the ideal path generated from the maps, the system calculates the following statistical metrics to quantify precision:
@@ -117,13 +120,6 @@ By comparing the detected coordinates against the ideal path generated from the 
 * Mean Squared Error (MSE): Quantifies the average squared variance between the robot's center and the target path. This metric penalizes larger deviations, making it ideal for identifying critical path failures.
 
 * Root Mean Squared Error (RMSE): Represents the standard deviation of the residuals. It provides the final error margin in a human-readable format: Centimeters (CM).
-
-### Vision-to-Physical Calibration
-
-To ensure real-world accuracy, the system uses a calibration constant based on the known width of the path ($1000$ cm), allowing the software to convert pixel-based detections into precise metric measurements.
-
-### YOLOv8 Detection Example
-To calculate the error metrics, the vision system performs real-time inference on the video frames. Below is an example of the model identifying the robot's orientation and its alignment with the path:
 
 <div align="center">
   <img src="vision_module/results/path_2/v3/10.png" width="600px" alt="YOLOv8 Detection Output">
