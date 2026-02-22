@@ -1,0 +1,13 @@
+name: autonomous-path-follower-robot
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - conda-forge::matplotlib
+  - anaconda::flask
+  - conda-forge::pyyaml
+  - anaconda::pyserial
+  - conda-forge::pandas
+  - conda-forge::ezdxf
+  - ipykernel
+  - conda-forge::ultralytics
