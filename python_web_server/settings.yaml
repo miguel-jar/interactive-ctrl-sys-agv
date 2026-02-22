@@ -1,0 +1,20 @@
+# File system and Upload settings
+UPLOAD_FOLDER: map_processing/map_examples
+ALLOWED_EXTENSIONS: {'dxf'}
+UPLOAD_PAGE: map_upload.html
+
+# Map and Interface settings
+MAP_PAGE: map.html
+PATH_JSON: static/config.json
+
+# Results and Visualization settings
+CHART_PAGE: trajectory_chart.html
+SAVE_PATH: static/path_chart.svg
+SAVE_PATH_ALL: paths/2026_02/*
+
+# Serial Communication settings
+USB_PORT: /dev/ttyUSB0
+BAUDRATE: 115200
+HEADER: [16]        # Matches 0x10 in Arduino
+START_SEQ: [32, 112, 112, 112, 112] # Start sequence
+STOP_SEQ: [32, 115, 115, 115, 115]  # Stop sequence

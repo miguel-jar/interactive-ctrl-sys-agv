@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trajectory Graph</title>
+</head>
+
+<body>
+
+    <img id="map" src="{{url_for('static', filename='path_chart.svg')}}" alt="SVG Graph">
+
+    <form action="{{url_for('submit_trajectory')}}" method="get" enctype="multipart/form-data">
+        <input id="back-button" type="submit" value="Back">
+    </form>
+
+</body>
+
+</html>

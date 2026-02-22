@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Map</title>
+</head>
+
+<body>
+  <h1> Upload Map </h1>
+  <h3> Upload the DXF map file. </h3>
+  <h3> The file must follow the Solidworks model for drawings. </h3>
+
+  <form method="post" enctype="multipart/form-data">
+    <input id="select" type="file" name="file">
+    <input id="upload" type="submit" value="Upload"> <br> <br>
+  </form>
+
+  <form action="/submit-trajectory" method="get" enctype="multipart/form-data">
+    <input id="previous" type="submit" value="Use last uploaded map">
+  </form>
+
+</body>
+
+</html>
