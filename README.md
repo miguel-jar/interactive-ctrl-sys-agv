@@ -51,15 +51,15 @@ The project is divided into three main modules:
 
 **Python 3.11+**
 
-### 2. Cloning the Repository
+### Cloning the Repository
 
 ```bash
 git clone https://github.com/miguel-jar/path-follower-robot.git
 ```
 
-### 3. Installing Required Packages
+### Installing Required Packages
 
-Install dependencies using your preferred environment method (conda or pip). Open a terminal, inside robot-combate-pts-sys folder, and type:
+Install dependencies using your preferred method (conda or pip). **Python 3.11+** and **PyTorch 2.0+** are needed.
 
 ```bash
 pip install -r requirements.txt
@@ -78,7 +78,7 @@ conda env create -f environment.yml
 Inside project folder, type:
 
 ```bash
-cd python_web_servery
+cd python_web_server
 python server.py
 ```
 
