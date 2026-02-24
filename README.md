@@ -59,7 +59,7 @@ The project is divided into three main modules:
 ### Cloning the Repository
 
 ```bash
-git clone https://github.com/miguel-jar/path-follower-robot.git
+git clone https://github.com/miguel-jar/interactive-ctrl-sys-agv.git
 ```
 
 ### Installing Required Packages
